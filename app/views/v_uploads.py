@@ -34,8 +34,11 @@ async def create_upload_file(table, file: UploadFile = File(...)):
     s = str(contents, 'utf-8')
     data = StringIO(s)
     df = pd.read_csv(data, names=name_columns_csv[table], sep=',')
+    # out = clear_data(df)
     errors = schema.validate(df)
     errors_index_rows = [e.row for e in errors]
     data_clear = df.drop(index=errors_index_rows)
     data_clear.to_sql(table, engine, if_exists='append', index=False, chunksize=1000, dtype=df_schema[table])
+    errors_rows = df.filter(items=errors_index_rows, axis=0)
+    errors_rows.to_sql(table + '_errors', engine, if_exists='append', index=False, chunksize=1000, dtype=df_schema[table])
     return {file.filename}
