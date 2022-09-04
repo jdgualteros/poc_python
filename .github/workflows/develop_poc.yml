@@ -26,4 +26,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: devops/app:latest
+          tags: dang257315/devops/pocpython:latest
