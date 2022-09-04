@@ -25,5 +25,5 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          push: true
+          push: False
           tags: dang257315/devops/pocpython:latest
