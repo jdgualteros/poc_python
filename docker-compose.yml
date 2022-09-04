@@ -10,12 +10,6 @@ services:
         - poc
     volumes:
         - .:/code
-    command:
-      - /bin/sh
-      - -c
-      - |
-        gunicorn app.main:app --workers 2 \
-        --worker-class uvicorn.workers.UvicornWorker -b 0.0.0.0:80
 
     ports:
-      - 80:80
+      - 5000:80
