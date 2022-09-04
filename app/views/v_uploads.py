@@ -3,9 +3,29 @@ import pandas as pd
 from io import StringIO
 from app.config.context import get_db, engine
 from app.schemas.sc_tables import df_schema, name_columns_csv
+from pandas_schema.validation import CustomElementValidation
+from pandas_schema import Schema, Column
+import numpy as np
 
 router = APIRouter()
 
+def check_int(num):
+    try:
+        int(num)
+    except ValueError:
+        return False
+    return True
+    
+int_validation = [CustomElementValidation(lambda i: check_int(i), lambda i: print(i))]
+null_validation = [CustomElementValidation(lambda d: d is not np.nan, lambda i: print(i))]
+
+schema = Schema([
+    Column('id', null_validation + int_validation),
+    Column('name', null_validation),
+    Column('datetime', null_validation),
+    Column('department_id', null_validation + int_validation),
+    Column('job_id', null_validation + int_validation)
+])
 
 
 @router.post("/upload/{table}", tags=["Upload Files"])
@@ -14,5 +34,8 @@ async def create_upload_file(table, file: UploadFile = File(...)):
     s = str(contents, 'utf-8')
     data = StringIO(s)
     df = pd.read_csv(data, names=name_columns_csv[table], sep=',')
-    df.to_sql(table, engine, if_exists='append', index=False, chunksize=1000, dtype=df_schema[table])
+    errors = schema.validate(df)
+    errors_index_rows = [e.row for e in errors]
+    data_clear = df.drop(index=errors_index_rows)
+    data_clear.to_sql(table, engine, if_exists='append', index=False, chunksize=1000, dtype=df_schema[table])
     return {file.filename}
