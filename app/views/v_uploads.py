@@ -2,6 +2,7 @@ from fastapi import UploadFile, File, APIRouter
 import pandas as pd
 from io import StringIO
 from app.config.context import get_db, engine
+from app.schemas.test import df_schema
 
 router = APIRouter()
 
