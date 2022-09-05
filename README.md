@@ -16,7 +16,13 @@ logged.
 - All the fields are required.
 
 
-To run the project go to the poc_python folder and execute:
+To run the project 
+
+```
+docker push dang257315/pocpython:tagname
+```
+
+Or go to the poc_python folder and execute:
 
 ```
 docker-compose up -d
@@ -36,6 +42,36 @@ note: Different names are not accepted due to the data validation process.
 
 ![API docs](img/uploadFile.jpg)
 
+
+![API docs](img/table.jpg)
+
+records with any field in null or not complying with the integer restriction in the {table}_errors tables are inserted.
+
+Example:
+![API docs](img/employees_erros.jpg)
+
+```
+app
+    ├───resources
+    │   ├───dataset
+    ├───schemas
+    │   └───sc_tables.py
+    ├───views
+	│   └───v_uploads.py
+	main.py
+```
+
+Reading the csv file
+![API docs](img/readcsv.jpg)
+
+Definition of headers for the different files
+![API docs](img/colcsv.jpg)
+
+Validation scheme selection
+![API docs](img/validate.jpg)
+
+![API docs](img/schvalidate.jpg)
+
 ## 2. Requirements generation
 
 Click on the following links and you will automatically download the report in csv format.
@@ -43,6 +79,10 @@ Click on the following links and you will automatically download the report in c
 - http://127.0.0.1:5000/requirements/quarter
 
 - http://127.0.0.1:5000/requirements/media
+
+Requirement generation is done through sql pandas queries.
+
+![API docs](img/reqcode.jpg)
 
 ## 3. Backup table
 
@@ -65,6 +105,16 @@ http://127.0.0.1:8000/backup/jobs
 ![API docs](img/backup.jpg)
 
 In the root of the project you will see reflected the creation of the backups in .avro format.
+
+![API docs](img/codebackup.jpg)
+
+## 4. Restore table
+
+Make the request as follows change the name of the table to restore, this will generate the deletion of the table and the upload of the .avro file.
+
+http://127.0.0.1:5000/restore/employees
+
+![API docs](img/codeRestore.jpg)
 
 ### Folder structure
 ```
