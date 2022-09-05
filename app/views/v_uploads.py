@@ -9,7 +9,6 @@ import numpy as np
 
 router = APIRouter()
 
-
 def check_int(num):
     try:
         int(num)
@@ -23,7 +22,7 @@ int_validation = [CustomElementValidation(
 null_validation = [CustomElementValidation(
     lambda d: d is not np.nan, lambda i: print(i))]
 
-sch_employees = Schema([
+sch_emp = Schema([
     Column('id', null_validation + int_validation),
     Column('name', null_validation),
     Column('datetime', null_validation),
@@ -37,7 +36,7 @@ sch_jobs = Schema([
         Column('job', null_validation)
     ])
 
-sch_departments = Schema([
+sch_dep = Schema([
     Column('id', null_validation + int_validation),
     Column('department', null_validation)
 ])
@@ -50,13 +49,15 @@ async def create_upload_file(table, file: UploadFile = File(...)):
     s = str(contents, 'utf-8')
     data = StringIO(s)
     df = pd.read_csv(data, names=name_columns_csv[table], sep=',')
-    # out = clear_data(df)
-    errors = ('sch_' + table).validate(df)
+    if table == 'employees':
+        errors = sch_emp.validate(df)
+    if table == 'jobs':
+        errors = sch_jobs.validate(df)
+    if table == 'departments':
+        errors = sch_dep.validate(df)
     errors_index_rows = [e.row for e in errors]
     data_clear = df.drop(index=errors_index_rows)
-    data_clear.to_sql(table, engine, if_exists='append',
-                      index=False, chunksize=1000, dtype=df_schema[table])
+    data_clear.to_sql(table, engine, if_exists='append', index=False, chunksize=1000, dtype=df_schema[table])
     errors_rows = df.filter(items=errors_index_rows, axis=0)
-    errors_rows.to_sql(table + '_errors', engine, if_exists='append',
-                       index=False, chunksize=1000, dtype=df_schema[table])
+    errors_rows.to_sql(table + '_errors', engine, if_exists='append', index=False, chunksize=1000, dtype=df_schema[table])
     return {file.filename}
