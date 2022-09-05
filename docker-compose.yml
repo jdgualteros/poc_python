@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  app:
+    image: pocpython:latest
+    container_name: pocpython
+    hostname: app-server
+    restart: unless-stopped
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      labels:
+        - poc
+    volumes:
+        - .:/code
+    ports:
+      - 5000:80
+    networks:
+      - poc-net
+
+  db:
+    image: postgres
+    container_name: postgres
+    restart: always
+    hostname: db-server
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    depends_on:
+      - app
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+    networks:
+      - poc-net
+volumes:
+  db:
+    driver: local
+
+networks:
+  poc-net:
+    external: false
